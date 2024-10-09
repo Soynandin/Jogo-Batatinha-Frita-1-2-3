@@ -136,9 +136,9 @@ janela.title("Batatinha Frita 1, 2, 3")
 janela.geometry("800x600")
 
 # Carregar as imagens
-olhos_vigiando = Image.open("C:\\Users\\ferna\\OneDrive\\Documentos\\Teste-apEngenharia\\imagens\\olhos-vigiando.png")
-imagem_botao_iniciar = Image.open("C:\\Users\\ferna\\OneDrive\\Documentos\\Teste-apEngenharia\\imagens\\botao-start.png")
-imagem_botao_reiniciar = Image.open("C:\\Users\\ferna\\OneDrive\\Documentos\\Teste-apEngenharia\\imagens\\botao-reiniciar.png")
+olhos_vigiando = Image.open("imagens/olhos-vigiando.png")
+imagem_botao_iniciar = Image.open("imagens/botao-start.png")
+imagem_botao_reiniciar = Image.open("imagens/botao-reiniciar.png")
 
 olhos_vigiando_exibido = ImageTk.PhotoImage(olhos_vigiando)
 botao_iniciar_img = ImageTk.PhotoImage(imagem_botao_iniciar)
