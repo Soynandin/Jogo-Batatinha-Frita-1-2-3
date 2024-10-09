@@ -19,15 +19,16 @@ def iniciar_jogo():
     boneca_olhos_abertos = False
     distancia_inicial = None
 
-    botao_iniciar.grid_forget()
+    botao_iniciar.place_forget()
 
-    # Exibe "Prepare-se!" em vermelho
-    label_contagem.config(text="Prepare-se!", fg="red", font=("Arial", 48))
-    label_contagem.grid(row=1, column=0, pady=20)  # Centraliza o texto novamente
+    # Exibe "Vamos Jogar!" com fundo branco e texto preto
+    label_contagem.config(text="Vamos Jogar!", fg="black", bg="white", font=("Arial", 48))
+    label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Topo da tela
     janela.after(2000, iniciar_contagem)
 
 def iniciar_contagem():
-    label_contagem.config(text="1", fg="black", font=("Arial", 72))
+    # Exibe a contagem de 3 segundos
+    label_contagem.config(text="1", fg="black", bg="white", font=("Arial", 72))
     janela.after(1000, lambda: label_contagem.config(text="2"))
     janela.after(2000, lambda: label_contagem.config(text="3"))
     janela.after(3000, comecar_jogo)
@@ -35,19 +36,25 @@ def iniciar_contagem():
 def comecar_jogo():
     global boneca_olhos_abertos
     boneca_olhos_abertos = False
-    label_contagem.config(text="", fg="black")
+    label_contagem.config(text="", fg="white", bg="black")
 
-    atualizar_imagem_boneca(imagem_fechada_exibida)
+    # Atualiza o fundo para preto, sem imagens
+    atualizar_imagem_boneca(None)
 
-    tempo_contagem = random.uniform(3, 5)
+    tempo_contagem = random.uniform(1, 3)
     janela.after(int(tempo_contagem * 1000), verificar_movimento)
 
 def verificar_movimento():
     global boneca_olhos_abertos, distancia_inicial
     
     boneca_olhos_abertos = True
-    label_contagem.config(text="Vigiando!", fg="red", font=("Arial", 48))
-    atualizar_imagem_boneca(imagem_aberta_exibida)
+    label_contagem.config(text="Vigiando!", fg="white", bg="black", font=("Arial", 48))
+
+    # Coloca a mensagem "Vigiando!" na parte superior
+    label_contagem.place(relx=0.5, rely=0.1, anchor="center")
+
+    # Exibe os olhos vigiando sobre o fundo preto
+    atualizar_imagem_boneca(olhos_vigiando_exibido)
     
     distancia_inicial = capturar_distancia()
     
@@ -61,52 +68,35 @@ def verificar_resultado():
 
     if distancia_atual is not None:
         if abs(distancia_atual - distancia_inicial) > faixa_de_erro:
-            label_contagem.config(text="Você perdeu!!", fg="red", font=("Arial", 72))
+            label_contagem.config(text="Você perdeu!!", fg="white", bg="black", font=("Arial", 72))
+            label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Manter a mensagem no topo
             mostrar_botao_reload()
         else:
-            label_contagem.config(text="Você venceu essa rodada!", fg="green", font=("Arial", 72))
+            label_contagem.config(text="Você venceu essa rodada!", fg="white", bg="black", font=("Arial", 72))
+            label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Manter a mensagem no topo
             janela.after(2000, comecar_jogo)
 
 def mostrar_botao_reload():
-    # Reposiciona o botão no canto inferior direito
-    botao_reload.grid(row=2, column=1, sticky="se", padx=20, pady=20)
+    botao_reload.place(relx=0.5, rely=0.9, anchor="center")
 
 def reiniciar_jogo():
-    botao_reload.grid_forget()
-    iniciar_jogo()
+    botao_reload.place_forget()
 
-def redimensionar_imagem(event):
-    largura_disponivel = canvas.winfo_width()
-    altura_disponivel = canvas.winfo_height()
+    # Reseta a tela para branco com fundo e imagem dos olhos desaparecendo
+    canvas.config(bg="white")
+    atualizar_imagem_boneca(None)
 
-    margem = 10
-    largura_disponivel = max(largura_disponivel - margem * 2, 100)
-    altura_disponivel = max(altura_disponivel - margem * 2, 100)
+    # Exibe "Vamos Jogar!" com fundo branco
+    label_contagem.config(text="Vamos Jogar!", fg="black", bg="white", font=("Arial", 48))
+    label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Coloca a mensagem no topo
 
-    proporcao_original = imagem_fechada.width / imagem_fechada.height
-
-    nova_largura = largura_disponivel
-    nova_altura = int(nova_largura / proporcao_original)
-
-    if nova_altura > altura_disponivel:
-        nova_altura = altura_disponivel
-        nova_largura = int(nova_altura * proporcao_original)
-
-    nova_imagem_fechada = imagem_fechada.resize((nova_largura, nova_altura), Image.LANCZOS)
-    nova_imagem_aberta = imagem_aberta.resize((nova_largura, nova_altura), Image.LANCZOS)
-
-    global imagem_fechada_exibida, imagem_aberta_exibida
-    imagem_fechada_exibida = ImageTk.PhotoImage(nova_imagem_fechada)
-    imagem_aberta_exibida = ImageTk.PhotoImage(nova_imagem_aberta)
-
-    if boneca_olhos_abertos:
-        atualizar_imagem_boneca(imagem_aberta_exibida)
-    else:
-        atualizar_imagem_boneca(imagem_fechada_exibida)
+    janela.after(2000, iniciar_contagem)
 
 def atualizar_imagem_boneca(nova_imagem):
-    canvas.delete("all")
-    canvas.create_image(canvas.winfo_width()//2, canvas.winfo_height()//2, image=nova_imagem, anchor=tk.CENTER)
+    canvas.delete("all")  # Limpa o canvas
+    canvas.config(bg="black")  # Fundo preto durante o jogo
+    if nova_imagem:
+        canvas.create_image(canvas.winfo_width()//2, canvas.winfo_height()//2, image=nova_imagem, anchor="center")
     canvas.image = nova_imagem
 
 # Configuração da interface gráfica
@@ -114,29 +104,27 @@ janela = tk.Tk()
 janela.title("Batatinha Frita 1, 2, 3")
 janela.geometry("800x600")
 
-imagem_fechada = Image.open("C:\\Users\\ferna\\OneDrive\\Documentos\\Teste-apEngenharia\\imagens\\boneca_fechada.png")
-imagem_aberta = Image.open("C:\\Users\\ferna\\OneDrive\\Documentos\\Teste-apEngenharia\\imagens\\boneca_aberta.png")
+# Carregar as imagens
+olhos_vigiando = Image.open("C:\\Users\\ferna\\OneDrive\\Documentos\\Teste-apEngenharia\\imagens\\olhos-vigiando.png")
+imagem_botao_iniciar = Image.open("C:\\Users\\ferna\\OneDrive\\Documentos\\Teste-apEngenharia\\imagens\\botao-start.png")
+imagem_botao_reiniciar = Image.open("C:\\Users\\ferna\\OneDrive\\Documentos\\Teste-apEngenharia\\imagens\\botao-reiniciar.png")
 
-imagem_fechada_exibida = ImageTk.PhotoImage(imagem_fechada)
-imagem_aberta_exibida = ImageTk.PhotoImage(imagem_aberta)
+olhos_vigiando_exibido = ImageTk.PhotoImage(olhos_vigiando)
+botao_iniciar_img = ImageTk.PhotoImage(imagem_botao_iniciar)
+botao_reload_img = ImageTk.PhotoImage(imagem_botao_reiniciar)
 
 canvas = tk.Canvas(janela)
-canvas.grid(row=0, column=0, rowspan=1, sticky="nsew")
+canvas.place(relwidth=1, relheight=1)  # O canvas cobre toda a janela
 
-label_contagem = tk.Label(janela, text="Aguardando...", font=("Arial", 24))
-label_contagem.grid(row=1, column=0, pady=10)  # Centraliza o texto
+# Label de contagem com fundo branco e texto preto
+label_contagem = tk.Label(janela, text="Aguardando...", font=("Arial", 24), fg="black", bg="white")
+label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Coloca a mensagem no topo da tela
 
-botao_iniciar = tk.Button(janela, text="Iniciar", font=("Arial", 48), command=iniciar_jogo)
-botao_iniciar.grid(row=1, column=0, pady=20)  # Centraliza o botão de iniciar
+# Botão de iniciar com imagem
+botao_iniciar = tk.Button(janela, image=botao_iniciar_img, command=iniciar_jogo, borderwidth=0)
+botao_iniciar.place(relx=0.5, rely=0.5, anchor="center")  # Centraliza o botão de iniciar
 
-botao_reload = tk.Button(janela, text="Reiniciar", font=("Arial", 24), command=reiniciar_jogo)
-
-# Configuração da grid para centralizar todos os elementos, exceto o botão de reiniciar
-janela.grid_rowconfigure(0, weight=10)  # Linha da imagem
-janela.grid_rowconfigure(1, weight=1)  # Linha para o texto
-janela.grid_rowconfigure(2, weight=1)  # Linha para manter a proporção correta
-janela.grid_columnconfigure(0, weight=1)  # Centraliza as colunas
-
-janela.bind("<Configure>", redimensionar_imagem)
+# Botão de reiniciar com imagem
+botao_reload = tk.Button(janela, image=botao_reload_img, command=reiniciar_jogo, borderwidth=0)
 
 janela.mainloop()

@@ -1,0 +1,37 @@
+// Definindo os pinos do sensor
+const int triggerPin = 9;  // Pino do trigger
+const int echoPin = 10;    // Pino do echo
+
+// Variáveis de controle
+long duration;
+int distance;
+
+void setup() {
+  // Inicializa a comunicação serial
+  Serial.begin(9600);
+  
+  // Define os pinos como saída/entrada
+  pinMode(triggerPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+
+void loop() {
+  // Envia o pulso para o trigger para iniciar a medição
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+
+  // Lê o tempo que o eco demorou para retornar
+  duration = pulseIn(echoPin, HIGH);
+
+  // Calcula a distância em centímetros
+  distance = duration * 0.0343 / 2;
+
+  // Envia a distância para o computador via Serial
+  Serial.println(distance);
+
+  // Atraso para estabilizar a leitura
+  delay(500);
+}
