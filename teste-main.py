@@ -6,13 +6,13 @@ from PIL import Image, ImageTk
 boneca_olhos_abertos = False
 movimento_detectado = False
 distancia_inicial = None
-faixa_de_erro = 2  # Faixa de erro aceitável para a movimentação
+faixa_de_erro = 10  # Faixa de erro aceitável para a movimentação
 
 # Função para simular a captura da distância
 def capturar_distancia():
-    return random.randint(50, 100)
+    return random.randint(50, 100)  # Simulação da captura de distância (em cm)
 
-# Função para o jogo
+# Função para iniciar o jogo
 def iniciar_jogo():
     global boneca_olhos_abertos, distancia_inicial, movimento_detectado
     movimento_detectado = False
@@ -21,29 +21,34 @@ def iniciar_jogo():
 
     botao_iniciar.place_forget()
 
-    # Exibe "Vamos Jogar!" com fundo branco e texto preto
-    label_contagem.config(text="Vamos Jogar!", fg="black", bg="white", font=("Arial", 48))
-    label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Topo da tela
+    # Exibe "Quer me desafiar?" com fundo branco e texto preto
+    label_contagem.config(text="Quer me desafiar?", fg="black", bg="white", font=("Arial", 48))
+    label_contagem.place(relx=0.5, rely=0.5, anchor="center")  # Centralizado na tela
     janela.after(2000, iniciar_contagem)
 
+# Função para exibir a contagem regressiva
 def iniciar_contagem():
-    # Exibe a contagem de 3 segundos
-    label_contagem.config(text="1", fg="black", bg="white", font=("Arial", 72))
-    janela.after(1000, lambda: label_contagem.config(text="2"))
-    janela.after(2000, lambda: label_contagem.config(text="3"))
-    janela.after(3000, comecar_jogo)
+    # Exibe "Prepare-se" e a contagem de 3 segundos
+    label_contagem.config(text="Prepare-se", fg="black", bg="white", font=("Arial", 48))
+    janela.after(1000, lambda: label_contagem.config(text="1", font=("Arial", 72)))
+    janela.after(2000, lambda: label_contagem.config(text="2"))
+    janela.after(3000, lambda: label_contagem.config(text="3"))
+    janela.after(4000, comecar_jogo)
 
+# Função para iniciar o jogo após a contagem
 def comecar_jogo():
     global boneca_olhos_abertos
     boneca_olhos_abertos = False
-    label_contagem.config(text="", fg="white", bg="black")
+    label_contagem.config(text="Não há ninguém olhando...", fg="white", bg="black", font=("Arial", 48))
 
-    # Atualiza o fundo para preto, sem imagens
+    # Coloca a mensagem no topo e atualiza o fundo para preto, sem imagens
+    label_contagem.place(relx=0.5, rely=0.1, anchor="center")
     atualizar_imagem_boneca(None)
 
     tempo_contagem = random.uniform(1, 3)
     janela.after(int(tempo_contagem * 1000), verificar_movimento)
 
+# Função para verificar o movimento
 def verificar_movimento():
     global boneca_olhos_abertos, distancia_inicial
     
@@ -56,29 +61,34 @@ def verificar_movimento():
     # Exibe os olhos vigiando sobre o fundo preto
     atualizar_imagem_boneca(olhos_vigiando_exibido)
     
+    # Captura a distância inicial quando a boneca começa a vigiar
     distancia_inicial = capturar_distancia()
     
     if distancia_inicial is not None:
-        janela.after(5000, verificar_resultado)
+        janela.after(5000, verificar_resultado)  # Espera 5 segundos para verificar o movimento
 
+# Função para verificar o resultado após o movimento
 def verificar_resultado():
     global boneca_olhos_abertos, distancia_inicial
     
     distancia_atual = capturar_distancia()
 
     if distancia_atual is not None:
+        # Se a diferença de distância exceder a faixa de erro, o jogador perde
         if abs(distancia_atual - distancia_inicial) > faixa_de_erro:
             label_contagem.config(text="Você perdeu!!", fg="white", bg="black", font=("Arial", 72))
             label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Manter a mensagem no topo
             mostrar_botao_reload()
         else:
-            label_contagem.config(text="Você venceu essa rodada!", fg="white", bg="black", font=("Arial", 72))
+            label_contagem.config(text="Você sobreviveu nessa, tem sorte...", fg="white", bg="black", font=("Arial", 48))
             label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Manter a mensagem no topo
             janela.after(2000, comecar_jogo)
 
+# Função para mostrar o botão de reiniciar
 def mostrar_botao_reload():
     botao_reload.place(relx=0.5, rely=0.9, anchor="center")
 
+# Função para reiniciar o jogo
 def reiniciar_jogo():
     botao_reload.place_forget()
 
@@ -86,12 +96,13 @@ def reiniciar_jogo():
     canvas.config(bg="white")
     atualizar_imagem_boneca(None)
 
-    # Exibe "Vamos Jogar!" com fundo branco
-    label_contagem.config(text="Vamos Jogar!", fg="black", bg="white", font=("Arial", 48))
-    label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Coloca a mensagem no topo
+    # Exibe "Quer me desafiar?" com fundo branco
+    label_contagem.config(text="Quer me desafiar?", fg="black", bg="white", font=("Arial", 48))
+    label_contagem.place(relx=0.5, rely=0.5, anchor="center")  # Coloca a mensagem no centro
 
     janela.after(2000, iniciar_contagem)
 
+# Função para atualizar a imagem da boneca
 def atualizar_imagem_boneca(nova_imagem):
     canvas.delete("all")  # Limpa o canvas
     canvas.config(bg="black")  # Fundo preto durante o jogo

@@ -8,27 +8,27 @@ boneca_olhos_abertos = False
 movimento_detectado = False
 distancia_inicial = None
 faixa_de_erro = 2  # Faixa de erro aceitável para a movimentação
-distancia_minima_permitida = 350  # A partir de 350 metros a pessoa está ativa
-distancia_maxima_permitida = 400  # Até 400 metros a pessoa começa
+distancia_minima_permitida = 80  # A partir de 80 cm a pessoa está ativa
+distancia_maxima_permitida = 100  # Até 100 cm a pessoa começa
 distancia_vitoria_minima = 0  # Distância mínima para vencer (em cm)
-distancia_vitoria_maxima = 30  # Distância máxima para vencer (em cm)
+distancia_vitoria_maxima = 10  # Distância máxima para vencer (em cm)
 
-# Configuração da comunicação com o Arduino (ajuste a porta para a do seu sistema)
-porta_arduino = 'COM3'  # Substitua pela sua porta serial
-arduino = serial.Serial(porta_arduino, 9600, timeout=1)
+# Conexão com Arduino
+arduino = serial.Serial("/dev/ttyUSB0", 9600, timeout=1)
 
 # Função para ler a distância real do sensor
 def capturar_distancia():
     try:
-        # Envia um comando ao Arduino para obter a distância
         arduino.write(b"get_distance\n")
-        # Lê a resposta do Arduino (distância em centímetros)
         distancia = arduino.readline().decode('utf-8').strip()
         if distancia:
             return float(distancia)
         return None
+    except serial.SerialException as e:
+        print(f"Erro na comunicação com o Arduino: {e}")
+        return None
     except Exception as e:
-        print(f"Erro ao capturar a distância: {e}")
+        print(f"Erro geral ao capturar a distância: {e}")
         return None
 
 # Função para o jogo
@@ -74,11 +74,17 @@ def verificar_movimento():
 
     # Exibe os olhos vigiando sobre o fundo preto
     atualizar_imagem_boneca(olhos_vigiando_exibido)
+
+    # Aguarda 3 segundos antes de capturar a distância
+    janela.after(3000, capturar_e_verificar_distancia)
+
+def capturar_e_verificar_distancia():
+    global distancia_inicial
     
     distancia_inicial = capturar_distancia()
-    
+
     if distancia_inicial is not None:
-        # A pessoa começa entre 350 e 400 metros
+        # A pessoa começa entre 80 e 100 cm
         if distancia_inicial >= distancia_minima_permitida and distancia_inicial <= distancia_maxima_permitida:
             janela.after(5000, verificar_resultado)
         else:
@@ -95,17 +101,21 @@ def verificar_resultado():
         # Verifica se a pessoa venceu
         if distancia_vitoria_minima <= distancia_atual <= distancia_vitoria_maxima:
             label_contagem.config(text="Você venceu!!", fg="white", bg="black", font=("Arial", 72))
-            label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Manter a mensagem no topo
+            label_contagem.place(relx=0.5, rely=0.1, anchor="center")
             mostrar_botao_reload()
         # Se a distância atual for menor que a inicial (a pessoa se aproximou demais)
         elif boneca_olhos_abertos and distancia_atual < distancia_inicial - faixa_de_erro:
             label_contagem.config(text="Você perdeu!!", fg="white", bg="black", font=("Arial", 72))
-            label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Manter a mensagem no topo
+            label_contagem.place(relx=0.5, rely=0.1, anchor="center")
             mostrar_botao_reload()
         else:
-            label_contagem.config(text="Você venceu essa rodada!", fg="white", bg="black", font=("Arial", 72))
-            label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Manter a mensagem no topo
-            janela.after(2000, comecar_jogo)
+            label_contagem.config(text="Você sobreviveu nessa, tem sorte...", fg="white", bg="black", font=("Arial", 48))
+            label_contagem.place(relx=0.5, rely=0.1, anchor="center")
+            janela.after(2000, retornar_olhos_fechados)
+
+def retornar_olhos_fechados():
+    atualizar_imagem_boneca(None)
+    label_contagem.config(text="Não há ninguém olhando...", fg="white", bg="black", font=("Arial", 48))
 
 def mostrar_botao_reload():
     botao_reload.place(relx=0.5, rely=0.9, anchor="center")
@@ -119,7 +129,7 @@ def reiniciar_jogo():
 
     # Exibe "Vamos Jogar!" com fundo branco
     label_contagem.config(text="Vamos Jogar!", fg="black", bg="white", font=("Arial", 48))
-    label_contagem.place(relx=0.5, rely=0.1, anchor="center")  # Coloca a mensagem no topo
+    label_contagem.place(relx=0.5, rely=0.1, anchor="center")
 
     janela.after(2000, iniciar_contagem)
 
