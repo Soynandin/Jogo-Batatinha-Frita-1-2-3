@@ -2,7 +2,7 @@
 
 ## Descrição do Projeto
 
-Este projeto é inspirado no icônico jogo "Batatinha Frita 1, 2, 3", apresentado na série **Round 6 (Squid Game)** da Netflix. Assim como na série, o jogo desafia os jogadores a se moverem apenas quando não estão sendo monitorados e ficarem absolutamente imóveis ao serem observados. A diferença é que aqui você joga contra um sistema automatizado, utilizando sensores e lógica programada.
+Este projeto é inspirado no jogo "Batatinha Frita 1, 2, 3", apresentado na série **Round 6 (Squid Game)** da Netflix. Assim como na série, o jogo desafia os jogadores a se moverem apenas quando não estão sendo monitorados e ficarem absolutamente imóveis ao serem observados. A diferença é que aqui você joga contra um sistema automatizado, utilizando sensores e lógica programada.
 
 O objetivo é sobreviver às rodadas, aproximando-se cada vez mais da "boneca" (representada por um sensor de ultrassom). O jogo termina quando você vence ao "tampar os olhos" do sistema ou é eliminado por se mover no momento errado.
 
